@@ -2,8 +2,8 @@ object TDEE {
 
   /**
     * What needs to be done:
-    *   1 - make askUserMetrics return a boolean based on input
-    *   2 - create method to calculate BMR after finishing part one
+    *   1 - Provde options for bulking/cutting/maintenance
+    *
     */
 
   /** Type of metrics the user wants to input (false == metric/true == imperial) */
@@ -20,6 +20,9 @@ object TDEE {
 
   /** Weight of the user */
   var weight: Double = _
+
+  /** Activity level of the user */
+  var activity_level: Int = _
 
 
   /**
@@ -114,11 +117,25 @@ object TDEE {
     }
   }
 
+  /**
+    * Helper method used to prompt the user for their activity level
+    *
+    * @return the activity level of the user
+    */
+  def askUserActivityLevel(): Int = {
+    try {
+      scala.io.StdIn.readLine("Activity Level: ").toInt
+    } catch {
+      case e: Exception => 0
+    }
+  }
+
 
   /**
     * Calls proper methods to collect the user data
     */
   def collectData(): Unit = {
+    this.activity_level = askUserActivityLevel
     this.metric = askUserMetrics
     this.gender = askUserGender
     this.age = askUserAge
@@ -188,13 +205,72 @@ object TDEE {
   }
 
   /**
+    * A greeting message that is displayed when the program is initally ran.
+    */
+  def greetingMessage(): Unit = {
+    println("")
+    println("************************************************************")
+    println("*       Total Daily Exercise Expenditure Calculator        *")
+    println("************************************************************")
+    println("*  This simply calculates your TDEE based on your BMR and  *")
+    println("*  activity level. Activity level instructions can be      *")
+    println("*  found below.                                            *")
+    println("************************************************************")
+    println("*                    ACTIVITY LEVELS                       *")
+    println("************************************************************")
+    println("*  Enter the number that applies to you when prompted for  *")
+    println("*  your activity level.                                    *")
+    println("*                                                          *")
+    println("*  1 = Sedentary : little or no exercise                   *")
+    println("*  2 - Light active : light exercise 1-3/week              *")
+    println("*  3 - Moderately active: moderate exercise 3-5/week       *")
+    println("*  4 = Very active : Heavy exercise 6-7/week               *")
+    println("*  5 - Extremely active : Very heavy exercise 2x/day       *")
+    println("************************************************************")
+    println("*                          Enjoy!                          *")
+    println("************************************************************")
+    println("")
+  }
+
+  /**
+    * Calculates the users TDEE by using the 'match' expression
+    *
+    * @param bmr the users bmr which was previously calculated
+    * @param act_lvl the activity level as specified by the user
+    * @return the users TDEE
+    */
+  def calcTDEE(bmr: Double, act_lvl: Int): Double = act_lvl match {
+    case 1 => bmr.*(1.2)
+    case 2 => bmr.*(1.375)
+    case 3 => bmr.*(1.55)
+    case 4 => bmr.*(1.725)
+    case 5 => bmr.*(1.9)
+  }
+
+  /**
+    * Contains the logic for displaying the users BMR and TDEE to the
+    * terminal.
+    */
+  def mainOutput(): Unit = {
+    var bmr: Double = 0.0 // must initialize local variables
+    if (this.gender == false) {
+      bmr = maleBMR
+      println("BMR: " + bmr)
+      println("TDEE: " + calcTDEE(bmr, this.activity_level))
+    }
+    else {
+      bmr = femaleBMR
+      println("BMR: " + bmr)
+      println("TDEE: " + calcTDEE(bmr, this.activity_level))
+    }
+  }
+
+  /**
     * Program begins here
     */
   def main(args: Array[String]): Unit = {
+    greetingMessage
     collectData
-    if (this.gender == false)
-      println(maleBMR)
-    else
-      println(femaleBMR)
+    mainOutput
   }
 }
