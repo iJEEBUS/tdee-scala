@@ -2,7 +2,7 @@ object TDEE {
 
   /**
     * What needs to be done:
-    *   1 - Provde options for bulking/cutting/maintenance
+    *   1 - Provide options for bulking/cutting/maintenance
     *
     */
 
