@@ -1,9 +1,15 @@
 object TDEE {
 
+  /**
+    * What needs to be done:
+    *   1 - make askUserMetrics return a boolean based on input
+    *   2 - create method to calculate BMR after finishing part one
+    */
+
   /** Type of metrics the user wants to input (false == metric/true == imperial) */
   var metric: Boolean = _
 
-  /** Gender of the user (False == Male/True == Female) */
+  /** Gender of the user (false == male/true == female) */
   var gender: Boolean = _
 
   /** Age of the user */
@@ -19,12 +25,19 @@ object TDEE {
   /**
     * Helper method used to prompt the user for their preferred metrics
     *
-    * @return the metrics the user wishes to use
+    * @return the boolean value for the metrics to use (false == metric/true == imperial)
     */
   def askUserMetrics(): Boolean = {
+    val metric_list: List[String] = permute("metric") :+ "m"
+    val imperial_list: List[String] = permute("imperial") :+ "i"
+    val user_input: String = scala.io.StdIn.readLine("Metric/Imperial: ")
 
-    scala.io.StdIn.readLine("Metric/Imperial: ")
-    false // FIX THIS
+    if (metric_list.contains(user_input.toLowerCase))
+      false
+    else if (imperial_list.contains(user_input.toLowerCase))
+      true
+    else
+      askUserMetrics
   }
 
   /**
@@ -101,6 +114,7 @@ object TDEE {
     }
   }
 
+
   /**
     * Calls proper methods to collect the user data
     */
@@ -113,10 +127,74 @@ object TDEE {
   }
 
   /**
+    * Calculates the BMR for a male
+    *
+    * @return the BMR for the user
+    */
+  def maleBMR(): Double = {
+
+    // if metric, calculate the BMR in proper units
+    if (this.metric == false)
+      66 + (13.7.*(this.weight)) + (5.*(this.height)) - (6.8.*(this.age))
+    else if (this.metric == true) {
+      // convert to metric then call maleBMR with new data
+      this.height = convertToCM(this.height)
+      this.weight = convertToKilogram(this.weight)
+      this.metric = false
+      maleBMR
+    }
+    else
+      1.0
+  }
+
+  /**
+    * Calculates the BMR for a female
+    *
+    * @return the BMR for the user
+    */
+  def femaleBMR(): Double = {
+    // if metric, calculate the BMR in proper units
+    if (this.metric == false)
+      655 + (9.6.*(this.weight)) + (1.8.*(this.height)) - (4.7.*(this.age))
+    else if (this.metric == true) {
+      // convert to metric then call maleBMR with new data
+      this.height = convertToCM(this.height)
+      this.weight = convertToKilogram(this.weight)
+      this.metric = false
+      femaleBMR
+    }
+    else
+      1.0
+  }
+
+  /**
+    * Helper method that converts inches to centimeters
+    *
+    * @param num length in inches to convert
+    * @return the centimeter representation of inputted number
+    */
+  def convertToCM(num: Double): Double = {
+    num.*(2.54)
+  }
+
+  /**
+    * Helper method that converts lbs to kgs
+    *
+    * @param num wieght in lbs to convert
+    * @return the kg representation of inputted number
+    */
+  def convertToKilogram(num: Double): Double = {
+    num.*(0.453592)
+  }
+
+  /**
     * Program begins here
     */
   def main(args: Array[String]): Unit = {
     collectData
+    if (this.gender == false)
+      println(maleBMR)
+    else
+      println(femaleBMR)
   }
-
 }
